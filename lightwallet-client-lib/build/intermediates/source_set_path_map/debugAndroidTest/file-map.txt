@@ -1,0 +1,5 @@
+cash.z.wallet.sdk.rpc.test.lightwallet-client-lib-androidTest-0 /Users/lucacampobasso/AndroidStudioProjects/ZcashDemoApp/lightwallet-client-lib/build/generated/res/resValues/androidTest/debug
+cash.z.wallet.sdk.rpc.test.lightwallet-client-lib-mergeDebugAndroidTestResources-1 /Users/lucacampobasso/AndroidStudioProjects/ZcashDemoApp/lightwallet-client-lib/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+cash.z.wallet.sdk.rpc.test.lightwallet-client-lib-mergeDebugAndroidTestResources-2 /Users/lucacampobasso/AndroidStudioProjects/ZcashDemoApp/lightwallet-client-lib/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+cash.z.wallet.sdk.rpc.test.lightwallet-client-lib-merged_res-3 /Users/lucacampobasso/AndroidStudioProjects/ZcashDemoApp/lightwallet-client-lib/build/intermediates/merged_res/debugAndroidTest
+cash.z.wallet.sdk.rpc.test.lightwallet-client-lib-packaged_res-4 /Users/lucacampobasso/AndroidStudioProjects/ZcashDemoApp/lightwallet-client-lib/build/intermediates/packaged_res/debug
