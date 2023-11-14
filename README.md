@@ -1,21 +1,27 @@
 # Android demo app for Zcash
 
+## Introduction
+
 This is an app built for demonstration of the features of a UniFFI library translating the librustzcash library built by the ECC.
 
-Some ground rules/suggestions/recommendations:
+### Some ground rules/suggestions/recommendations:
+
 - it was not built to be used as a wallet. It doesn't contain a lot of basic instruments like error handling
 - it is meant for developers to be ran
 - it is meant to be used for debugging or as starting point for building a wallet-like application
 - the code is very simplistic and doesn't reflect the complexity of the UX of a modern Android app, 
 - but we still tried to use the most modern version of the UI (Android Compose)
 
-This said,
+### This said,
+
 - It's best to have Android Studio installed.
 - Before you start using the features connected to the database, it's best to set a seed in `Constants`.
 - The device needs to have [sapling-spend.params](https://download.z.cash/downloads/sapling-spend.params) and [sapling-output.params](https://download.z.cash/downloads/sapling-output.params) stored under `z.cash.demoapp/files`.
 - If you prefer to have the params files somewhere else, you may easily change that in the code.
 
 Some pieces were taken from the [already existing SDK by the ECC](https://github.com/zcash/zcash-android-wallet-sdk), especially the protobuf for using lightwalletd.
+
+## Features available
 
 There are several pages available, dividing up features as much as possible:
 
@@ -32,11 +38,14 @@ There are several pages available, dividing up features as much as possible:
    - Decode Unified Address: paste a unified address and see the addresses it is composed of
    - Get transparent balance: paste a transparent address and get its total balance.
 
-BEFORE being able to spend anything, you need to have the notes saved in the internal database. 
+## Spending & Sync
+
+Before being able to spend anything, you need to have the notes saved in the internal database. That means you need to download blocks AFTER the transaction is mined and confirmed.
 So, in general, for spending, this is how an ideal scenario goes:
  - Write down the seed chosen for the wallet in `Constants`. It's an array of unsigned bytes. An ideal length would be 32.
  - After creating the wallet, you may get the transparent and shielded address so created. The shielded address belongs to the sapling pool.
  - Get TAZs to the **shielded** address [here](https://faucet.zecpages.com/) (or some other faucet for testnet).
+ - Wait 5-10 minutes, check for example [here](https://blockexplorer.one/zcash/testnet) for when the transaction gets mined.
  - After you see that the transaction was mined and got at least one confirmation (or how many were set in `Constants`),
  - Tap on "Download blocks". You should see that the note was downloaded because it will be visible under spendable notes in the main page, or if you paste the transaction hash in "Explore the transaction".
  - You should be all set to go to "Spend a note", and follow from there.
