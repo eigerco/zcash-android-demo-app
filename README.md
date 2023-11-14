@@ -2,19 +2,22 @@
 
 This is an app built for demonstration of the features of a UniFFI library translating the librustzcash library built by the ECC.
 
-Some ground rules:
+Some ground rules/suggestions/recommendations:
 - it was not built to be used as a wallet. It doesn't contain a lot of basic instruments like error handling
 - it is meant for developers to be ran
 - it is meant to be used for debugging or as starting point for building a wallet-like application
 - the code is very simplistic and doesn't reflect the complexity of the UX of a modern Android app, 
-- but we still tried to use the most modern version of the UI (Android Compose).
+- but we still tried to use the most modern version of the UI (Android Compose)
+
+This said,
+- It's best to have Android Studio installed.
+- Before you start using the features connected to the database, it's best to set a seed in `Constants`.
+- The device needs to have [sapling-spend.params](https://download.z.cash/downloads/sapling-spend.params) and [sapling-output.params](https://download.z.cash/downloads/sapling-output.params) stored under `z.cash.demoapp/files`.
+- If you prefer to have the params files somewhere else, you may easily change that in the code.
 
 Some pieces were taken from the [already existing SDK by the ECC](https://github.com/zcash/zcash-android-wallet-sdk), especially the protobuf for using lightwalletd.
 
-In order to use it, it's best to have Android Studio installed. Before you start using the features connected to the database, it's best to set a seed in `Constants`.
-
-
-There are several pages available:
+There are several pages available, dividing up features as much as possible:
 
  - the Main activity, the one showing when the app is started, has three voices:
    - Reset database: it dumps and reinitialize the database and tables. It also creates the account which will be used for the spending operation.
