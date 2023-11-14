@@ -33,11 +33,11 @@ class MenuActivity : ComponentActivity() {
                             startActivity(Intent(this@MenuActivity, TxDetailsActivity::class.java))
                         }
 
-                        StandardButton("Encode or decode addresses") {
+                        StandardButton("Decode Unified Address") {
                             startActivity(Intent(this@MenuActivity, EncodingActivity::class.java))
                         }
 
-                        StandardButton("See transparent balance of an address") {
+                        StandardButton("Get transparent balance") {
                             startActivity(Intent(this@MenuActivity, TransparentBalanceActivity::class.java))
                         }
                     }

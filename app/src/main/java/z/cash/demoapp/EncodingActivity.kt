@@ -44,15 +44,15 @@ class EncodingActivity : ComponentActivity() {
                         label = { Text("Transaction hash") }
                     )
                     LabelTextRow(
-                        label = "transparent address",
+                        label = "Transparent address",
                         text = getTransparentAddress(parseUnifiedAddress(txHashToAnalyze))
                     )
                     LabelTextRow(
-                        label = "sapling address",
+                        label = "Sapling address",
                         text = getSaplingAddress(parseUnifiedAddress(txHashToAnalyze))
                     )
                     LabelTextRow(
-                        label = "orchard address",
+                        label = "Orchard address",
                         text = getOrchardAddress(parseUnifiedAddress(txHashToAnalyze))
                     )
                 }
@@ -77,8 +77,6 @@ class EncodingActivity : ComponentActivity() {
     }
 
 }
-
-
 
 fun List<UByte>.toHex(): String {
     val sb = StringBuilder(size * 2)

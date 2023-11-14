@@ -1,5 +1,6 @@
 package z.cash.demoapp
 
+import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -27,12 +28,7 @@ class SpendingActivity : ComponentActivity() {
         val dbPath = getDatabasePath(WalletDb.DATABASE_NAME).absolutePath
         val walletDb = ZcashWalletDb.forPath(dbPath, Constants.PARAMS)
 
-        val spendableAmount = try {
-            SpendingOperations.spendableAmount(walletDb)
-        } catch(_: Throwable) {
-            Toast.makeText(this@SpendingActivity, "You need to have some notes in the wallet to spend something!", Toast.LENGTH_LONG).show()
-            0
-        }
+        val spendableAmount = getSpendableAmountOrToast(walletDb)
 
         setContent {
             ZcashDemoAppTheme {
@@ -50,18 +46,34 @@ class SpendingActivity : ComponentActivity() {
                         label = { Text("Amount of ZATs to send") }
                     )
                     StandardButton("Create Transaction") {
-                        if(amountToSend > 0L) {
-                            val txRequest = SpendingOperations.makeTransactionRequest(listOf(), Constants.RECIPIENT_ADDRESS, amountToSend)
-                            SpendingOperations.createTransaction(this@SpendingActivity, walletDb, txRequest)
-                        } else {
-                            Toast.makeText(this@SpendingActivity, "You need to input the amount to send", Toast.LENGTH_LONG).show()
-                        }
+                        createTransaction(this@SpendingActivity, walletDb, amountToSend)
                     }
                     StandardButton("Submit Transaction") {
                         SpendingOperations.submitTransaction(this@SpendingActivity)
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Trying to reduce the amount of exceptions that may occur in the UI
+     */
+    private fun getSpendableAmountOrToast(walletDb: ZcashWalletDb): Long {
+        return try {
+            SpendingOperations.spendableAmount(walletDb)
+        } catch(_: Throwable) {
+            Toast.makeText(this@SpendingActivity, "You need to have some notes in the wallet to spend something!", Toast.LENGTH_LONG).show()
+            0L
+        }
+    }
+
+    private fun createTransaction(ctx: Context, walletDb: ZcashWalletDb, amountToSend: Long) {
+        if(amountToSend > 0L) {
+            val txRequest = SpendingOperations.makeTransactionRequest(listOf(), Constants.RECIPIENT_ADDRESS, amountToSend)
+            SpendingOperations.createTransaction(ctx, walletDb, txRequest)
+        } else {
+            Toast.makeText(ctx, "You need to input the amount to send", Toast.LENGTH_LONG).show()
         }
     }
 }
