@@ -7,14 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import uniffi.zcash.ZcashWalletDb
 import z.cash.demoapp.db.WalletDb
+import z.cash.demoapp.ui.Components
 import z.cash.demoapp.ui.Components.StandardButton
 import z.cash.demoapp.ui.SpendingOperations
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
@@ -39,10 +42,21 @@ class SpendingActivity : ComponentActivity() {
                 }
                 Column {
                     var amountToSend by remember { mutableLongStateOf(0L) }
-                    Text( text = spendableAmount.toString() )
-                    OutlinedTextField(
+                    Components.LabelTextRow(
+                        label = "Spendable amount",
+                        text = spendableAmount.toString()
+                    )
+                    OutlinedTextField (
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         value = amountToSend.toString(),
-                        onValueChange = { amountToSend = it.toLong() },
+                        onValueChange = {
+                            amountToSend = try {
+                                it.toLong()
+                            } catch(_: Throwable) {
+                                0
+                            }
+
+                        },
                         label = { Text("Amount of ZATs to send") }
                     )
                     StandardButton("Create Transaction") {
@@ -72,6 +86,7 @@ class SpendingActivity : ComponentActivity() {
         if(amountToSend > 0L) {
             val txRequest = SpendingOperations.makeTransactionRequest(listOf(), Constants.RECIPIENT_ADDRESS, amountToSend)
             SpendingOperations.createTransaction(ctx, walletDb, txRequest)
+            Toast.makeText(ctx, "Transaction created!", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(ctx, "You need to input the amount to send", Toast.LENGTH_LONG).show()
         }

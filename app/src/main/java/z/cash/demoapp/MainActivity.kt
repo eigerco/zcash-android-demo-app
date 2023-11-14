@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
                         }
                         StandardButton("Download blocks") {
                             Sync.downloadBlocks(dbPath, blocksDirRoot)
+                            Toast.makeText(this@MainActivity, "Blocks downloaded!", Toast.LENGTH_LONG).show()
                         }
                         StandardButton("Go to menu") {
                             startActivity(Intent(this@MainActivity, MenuActivity::class.java))

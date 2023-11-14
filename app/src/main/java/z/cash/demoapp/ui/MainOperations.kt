@@ -1,6 +1,7 @@
 package z.cash.demoapp.ui
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,8 +67,8 @@ object MainOperations {
     fun getWalletSummary(walletDb: ZcashWalletDb): String {
         val walletSummary = walletDb.getWalletSummary(Constants.MIN_CONFIRMATIONS)!!
         val unifiedAddress = walletDb.getCurrentAddress(Constants.ACCOUNT_ID)
-        val transparentAddress = unifiedAddress?.transparent()!!
-        val saplingAddress = unifiedAddress.sapling()!!
+        val transparentAddress = unifiedAddress?.transparent()!!.encode(Constants.PARAMS)
+        val saplingAddress = unifiedAddress.sapling()!!.encode(Constants.PARAMS)
 
         val ws = StringBuilder()
 
@@ -80,14 +81,16 @@ object MainOperations {
         val spendableNotes = walletDb.selectSpendableSaplingNotes(Constants.ACCOUNT_ID, amountDefiningSpendable, anchorHeight, listOf())
 
         ws.appendLine("Transparent address: $transparentAddress")
+        Log.i("getWalletSummary", "Transparent address: $transparentAddress")
         ws.appendLine("Sapling address: $saplingAddress")
+        Log.i("getWalletSummary", "Sapling address: $saplingAddress")
         ws.appendLine("Chain tip height: $chainTipHeight")
         ws.appendLine("Synced: ${walletSummary.isSynced()}")
         ws.appendLine("Fully synced height: $fullyScannedHeight")
         ws.appendLine("Wallet birthday height: $walletBirthdayHeight")
         ws.appendLine("Account balances:")
         walletSummary.accountBalances().forEach {
-            ws.append("${it.key}: ${it.value.total().value()}")
+            ws.appendLine("Account ID:${it.key}: ${it.value.total().value()}")
         }
         ws.appendLine("Spendable notes:")
         spendableNotes.forEach {

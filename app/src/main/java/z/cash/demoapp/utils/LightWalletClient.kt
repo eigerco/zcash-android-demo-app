@@ -1,5 +1,6 @@
 package z.cash.demoapp.utils
 
+import android.util.Log
 import cash.z.wallet.sdk.internal.rpc.CompactFormats
 import cash.z.wallet.sdk.internal.rpc.CompactTxStreamerGrpcKt
 import cash.z.wallet.sdk.internal.rpc.Service
@@ -9,6 +10,14 @@ import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
+import uniffi.zcash.ZcashBlockHeight
+import uniffi.zcash.ZcashCommitmentTreeRoot
+import uniffi.zcash.ZcashSaplingExtractedNoteCommitment
+import uniffi.zcash.ZcashSaplingNode
+import uniffi.zcash.ZcashShieldedProtocol
+import uniffi.zcash.ZcashWalletDb
 
 /**
  * This is where all the network calls reside
@@ -58,19 +67,50 @@ object LightWalletClient {
     }
 
     suspend fun getTransaction(txHashOrId: ByteString): Service.RawTransaction {
+        Log.i("getTransactionAndHeightFromHash", "getTransaction: ${txHashOrId.toStringUtf8()}")
         val request = Service.TxFilter.newBuilder().setHash(txHashOrId).build()
 
         return client.getTransaction(request)
     }
 
-    fun getUtxos(tAddresses: List<String>): Flow<GetAddressUtxosReply> {
+    fun getUtxos(tAddress: String): Flow<GetAddressUtxosReply> {
 
         val getUtxosBuilder = Service.GetAddressUtxosArg.newBuilder()
 
-        getUtxosBuilder.addAllAddresses(tAddresses)
+        getUtxosBuilder.addAddresses(tAddress)
+        getUtxosBuilder.maxEntries = Constants.MAX_UTXOS
 
         val request = getUtxosBuilder.build()
 
         return client.getAddressUtxosStream(request)
     }
+
+    /**
+     * Example of use of some other structures,
+     * otherwise unused in the application
+     */
+    private suspend fun updateSaplingRoots(walletDb: ZcashWalletDb) {
+        val getSubtreeRootsArgBuilder = Service.GetSubtreeRootsArg.newBuilder()
+        getSubtreeRootsArgBuilder.startIndex = 0
+        getSubtreeRootsArgBuilder.shieldedProtocol = Service.ShieldedProtocol.sapling
+        getSubtreeRootsArgBuilder.maxEntries = 10
+
+        val request = getSubtreeRootsArgBuilder.build()
+
+        val saplingRoots = client
+            .getSubtreeRoots(request)
+            .map { response ->
+                val heightVal = response.completingBlockHeight.toUInt()
+                val height = ZcashBlockHeight(heightVal)
+                val rootHash = response.rootHash.map { it.toUByte() }
+                val cmu = ZcashSaplingExtractedNoteCommitment(rootHash)
+                val commNode = ZcashSaplingNode.fromCmu(cmu)
+                ZcashCommitmentTreeRoot.fromParts(height, commNode)
+            }.toList()
+
+        walletDb.putSaplingSubtreeRoots(
+            0u, saplingRoots
+        )
+    }
+
 }

@@ -1,6 +1,7 @@
 package z.cash.demoapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import z.cash.demoapp.ui.Components
+import z.cash.demoapp.ui.Components.LabelTextRow
+import z.cash.demoapp.ui.Components.StandardButton
 import z.cash.demoapp.ui.TransparentBalanceOperations
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
 
@@ -43,6 +45,7 @@ class TransparentBalanceActivity : ComponentActivity() {
                      * before showing the button for calculating the total balance,
                      * which involves downloading all UTXOs present,
                      * so it might be an expensive operation.
+                     * Keep in mind that the number of UTXOs downloaded is limited in `Constants` by `MAX_UTXOS`
                      */
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         var address by remember { mutableStateOf("") }
@@ -51,6 +54,7 @@ class TransparentBalanceActivity : ComponentActivity() {
                         OutlinedTextField(
                             value = address,
                             onValueChange = {
+                                Log.i("testbal", "value changed!")
                                 isValid = TransparentBalanceOperations.isValidTransparentAddress(it)
                                 address = it
                             },
@@ -61,13 +65,17 @@ class TransparentBalanceActivity : ComponentActivity() {
                         if (!isValid) {
                             Text(text = "The address given is invalid", color = Color.Red)
                         } else {
-                            Text(text = balance.toString(), color = Color.Green)
-                            Components.StandardButton("Get address balance") {
+                            LabelTextRow(label = "Balance", text = balance.toString())
+                            StandardButton("Get address balance") {
                                 balance =
                                     TransparentBalanceOperations.getBalanceFromTransparentAddress(
                                         address
                                     )
                             }
+                        }
+
+                        StandardButton("Paste test address") {
+                            address = "tmRecgPfjvzjaNAzFLHmyFzkTJNc6c1PJf8"
                         }
                     }
                 }

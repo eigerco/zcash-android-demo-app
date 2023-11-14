@@ -53,7 +53,7 @@ class BlocksRepo(
         runCatching {
             fsBlocksDb.writeBlockMetadata (metaDataBuffer.map{ cb ->
                 val height = ZcashBlockHeight(cb.height.toUInt())
-                val hash = ZcashBlockHash.fromSlice(cb.hash.toList().map{ it.toUByte() })
+                val hash = ZcashBlockHash.fromSlice(cb.hash.map{ it.toUByte() })
                 val (saplingOutputsCount, orchardOutputsCount) = getOutputsCounts(cb.vtxList)
                 ZcashBlockMeta(height, hash, cb.time.toUInt(), saplingOutputsCount, orchardOutputsCount)
             })

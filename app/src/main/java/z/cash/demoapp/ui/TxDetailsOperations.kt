@@ -1,12 +1,13 @@
 package z.cash.demoapp.ui
 
-import com.google.protobuf.kotlin.toByteStringUtf8
+import com.google.protobuf.ByteString
 import kotlinx.coroutines.runBlocking
 import uniffi.zcash.ZcashBlockHeight
 import uniffi.zcash.ZcashBranchId
 import uniffi.zcash.ZcashTransaction
 import uniffi.zcash.ZcashWalletDb
 import uniffi.zcash.decryptTransaction
+import z.cash.demoapp.db.toHex
 import z.cash.demoapp.utils.Constants
 import z.cash.demoapp.utils.LightWalletClient
 
@@ -15,6 +16,7 @@ object TxDetailsOperations {
      * To extract information from a shielded transaction we need the viewing keys in the database,
      * otherwise we would need only the txHash information.
      */
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun getFormattedTextForTxDetails(walletDb: ZcashWalletDb, txHash: String): String {
         // There are much better ways to handle coroutines jobs,
         // but in this case we just need the transaction to be processed further.
@@ -47,10 +49,10 @@ object TxDetailsOperations {
 
         val saplingBundle = ztx.saplingBundle()
         if(saplingBundle?.shieldedOutputs() != null) {
-            sb.appendLine("This transaction is shielding or shielded")
+            sb.appendLine(" - This transaction is shielding or shielded")
 
-            sb.appendLine("There are ${saplingBundle.shieldedSpends().size} shielded spends (inputs).")
-            sb.appendLine("There are ${saplingBundle.shieldedOutputs().size} shielded outputs:")
+            sb.appendLine(" - There are ${saplingBundle.shieldedSpends().size} shielded spends (inputs).")
+            sb.appendLine(" - There are ${saplingBundle.shieldedOutputs().size} shielded outputs:")
 
             // The transaction is protected for everyone but for the sender of these transactions.
             // If the database contains an Account with the proper viewing keys,
@@ -61,11 +63,12 @@ object TxDetailsOperations {
             sb.appendLine("Below, the decrypted output:")
             decryptedOutput.forEach {
                 with(it) {
-                    sb.appendLine("index: ${index()} ")
-                    sb.appendLine("note: ${note()}")
-                    sb.appendLine("account: ${account()}")
-                    sb.appendLine("memo: ${memo()}")
-                    sb.appendLine("transfer type: ${transferType()}")
+                    sb.appendLine("------------------")
+                    sb.appendLine(" - index: ${index()} ")
+                    sb.appendLine(" - note value: ${note().value().inner()}")
+                    sb.appendLine(" - account ID: ${account().id}")
+                    sb.appendLine(" - memo: ${memo().data().map { e -> e.toByte() }.toByteArray().toHex()}")
+                    sb.appendLine(" - transfer type: ${transferType()}")
                 }
             }
         }
@@ -73,7 +76,9 @@ object TxDetailsOperations {
     }
 
     private suspend fun getTransactionAndHeightFromHash(txHash: String): Pair<ZcashTransaction, ZcashBlockHeight> {
-        val rawTransaction = LightWalletClient.getTransaction(txHash.toByteStringUtf8())
+        val bytesFromHex = txHash.fromHex()
+        bytesFromHex.reverse()
+        val rawTransaction = LightWalletClient.getTransaction(ByteString.copyFrom(bytesFromHex))
         // Most UniFFI functions in the library use unsigned integers,
         // so this is a common situation
         val txData = rawTransaction.data.toByteArray().map { it.toUByte() }
@@ -84,4 +89,15 @@ object TxDetailsOperations {
         return Pair(ZcashTransaction.fromBytes(txData, ZcashBranchId.SAPLING), zht)
     }
 
+}
+internal fun String.fromHex(): ByteArray {
+    val len = length
+    val data = ByteArray(len / 2)
+    var i = 0
+    while (i < len) {
+        data[i / 2] =
+            ((Character.digit(this[i], 16) shl 4) + Character.digit(this[i + 1], 16)).toByte()
+        i += 2
+    }
+    return data
 }

@@ -3,6 +3,7 @@ package z.cash.demoapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -12,12 +13,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import uniffi.zcash.ZcashAccountId
 import uniffi.zcash.ZcashUnifiedAddress
+import uniffi.zcash.ZcashWalletDb
+import z.cash.demoapp.db.WalletDb
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
 import z.cash.demoapp.utils.Constants
 import java.util.Locale
 import z.cash.demoapp.ui.Components.LabelTextRow
+import z.cash.demoapp.ui.Components.StandardButton
 
 class EncodingActivity : ComponentActivity() {
 
@@ -37,24 +43,44 @@ class EncodingActivity : ComponentActivity() {
                      *  - https://developer.android.com/jetpack/compose/state-saving
                      *  - https://developer.android.com/kotlin/parcelize
                      */
-                    var txHashToAnalyze by remember { mutableStateOf("") }
-                    OutlinedTextField(
-                        value = txHashToAnalyze,
-                        onValueChange = { txHashToAnalyze = it },
-                        label = { Text("Transaction hash") }
-                    )
-                    LabelTextRow(
-                        label = "Transparent address",
-                        text = getTransparentAddress(parseUnifiedAddress(txHashToAnalyze))
-                    )
-                    LabelTextRow(
-                        label = "Sapling address",
-                        text = getSaplingAddress(parseUnifiedAddress(txHashToAnalyze))
-                    )
-                    LabelTextRow(
-                        label = "Orchard address",
-                        text = getOrchardAddress(parseUnifiedAddress(txHashToAnalyze))
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        var uaAddress by remember { mutableStateOf("") }
+                        var tAddress by remember { mutableStateOf("") }
+                        var sAddress by remember { mutableStateOf("") }
+                        var oAddress by remember { mutableStateOf("") }
+                        OutlinedTextField(
+                            value = uaAddress,
+                            onValueChange = { uaAddress = it },
+                            label = { Text("Transaction hash") }
+                        )
+                        /**
+                         * hack for quick testing: getting the UA from the account
+                         * we generated
+                         */
+                        StandardButton("Paste test UA from db") {
+                            val dbPath = getDatabasePath(WalletDb.DATABASE_NAME).absolutePath
+                            val walletDb = ZcashWalletDb.forPath(dbPath, Constants.PARAMS)
+                            uaAddress = walletDb.getCurrentAddress(Constants.ACCOUNT_ID)?.encode(Constants.PARAMS) ?: ""
+                        }
+                        StandardButton("Parse address") {
+                            val ua = parseUnifiedAddress(uaAddress)
+                            tAddress = getTransparentAddress(ua)
+                            sAddress = getSaplingAddress(ua)
+                            oAddress = getOrchardAddress(ua)
+                        }
+                        LabelTextRow(
+                            label = "Transparent address",
+                            text = tAddress
+                        )
+                        LabelTextRow(
+                            label = "Sapling address",
+                            text = sAddress
+                        )
+                        LabelTextRow(
+                            label = "Orchard address",
+                            text = oAddress
+                        )
+                    }
                 }
             }
         }

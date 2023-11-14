@@ -1,5 +1,6 @@
 package z.cash.demoapp.utils
 
+import android.util.Log
 import cash.z.wallet.sdk.internal.rpc.CompactFormats.CompactTx
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +72,10 @@ object Sync {
 
     private suspend fun fetchTransactionsForBlock(walletDb: ZcashWalletDb, tx: CompactTx) {
         val response = client.getTransaction(tx.hash)
-        val txData = response.data.toList().map{ it.toUByte() }
+//        val txHash = tx.hash.toByteArray()
+//        txHash.reverse()
+//        Log.i("ZSYNC", "TX HASH: " + txHash.toHex() )
+        val txData = response.data.map{ it.toUByte() }
         val ztx = ZcashTransaction.fromBytes(txData, ZcashBranchId.SAPLING)
         decryptAndStoreTransaction(Constants.PARAMS, walletDb, ztx)
     }
@@ -86,7 +90,7 @@ object Sync {
                 throw Error("Transparent address doesn't exist!")
             }
 
-        val responseFlow = client.getUtxos(listOf(transparentAddress.encode(Constants.PARAMS)))
+        val responseFlow = client.getUtxos(transparentAddress.encode(Constants.PARAMS))
 
         responseFlow.collect {
             val txIdBytes = it.txid.map { x -> x.toUByte() }.toList()

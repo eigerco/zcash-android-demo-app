@@ -22,7 +22,7 @@ object TransparentBalanceOperations {
     fun getBalanceFromTransparentAddress(address: String): Long {
         return runBlocking {
             LightWalletClient
-                .getUtxos(listOf(address))
+                .getUtxos(address)
                 .map { u -> u.valueZat }
                 .reduce { acc, v -> v + acc }
         }
@@ -51,7 +51,7 @@ object TransparentBalanceOperations {
 
         val orchardAddress =
             try {
-                val rawBytes = addr.toByteArray().toList().map { it.toUByte()}
+                val rawBytes = addr.toByteArray().map { it.toUByte()}
                 ZcashOrchardAddress.fromRawAddressBytes(rawBytes)
             } catch(_: Throwable) {
                 null
@@ -59,7 +59,7 @@ object TransparentBalanceOperations {
 
         val unifiedAddress =
             try {
-                val rawBytes = addr.toByteArray().toList().map { it.toUByte()}
+                val rawBytes = addr.toByteArray().map { it.toUByte()}
                 ZcashOrchardAddress.fromRawAddressBytes(rawBytes)
             } catch(_: Throwable) {
                 null

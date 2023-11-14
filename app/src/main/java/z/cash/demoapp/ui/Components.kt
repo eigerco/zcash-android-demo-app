@@ -1,9 +1,12 @@
 package z.cash.demoapp.ui
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalButton
@@ -28,7 +31,8 @@ object Components {
                 containerColor = MaterialTheme.colorScheme.surface,
             ),
             modifier = Modifier
-                .size(width = 360.dp, height = 400.dp)
+                .size(width = 360.dp, height = 440.dp)
+                .verticalScroll(rememberScrollState())
                 .padding(top = 10.dp)) {
             Text(
                 text = title,
@@ -38,7 +42,7 @@ object Components {
             Text(
                 text = text,
                 modifier = Modifier.padding(12.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Left
             )
         }
     }

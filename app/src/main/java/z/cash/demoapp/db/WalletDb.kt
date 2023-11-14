@@ -43,7 +43,7 @@ class WalletDb(val context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
     companion object {
         // If you change the database schema, you must increment the database version.
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 8
         const val DATABASE_NAME = "WalletDatabase.db"
     }
 
