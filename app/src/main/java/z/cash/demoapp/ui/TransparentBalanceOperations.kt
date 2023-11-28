@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import uniffi.zcash.ZcashOrchardAddress
 import uniffi.zcash.ZcashPaymentAddress
 import uniffi.zcash.ZcashTransparentAddress
+import uniffi.zcash.ZcashUnifiedAddress
 import z.cash.demoapp.utils.Constants
 import z.cash.demoapp.utils.LightWalletClient
 
@@ -59,8 +60,7 @@ object TransparentBalanceOperations {
 
         val unifiedAddress =
             try {
-                val rawBytes = addr.toByteArray().map { it.toUByte()}
-                ZcashOrchardAddress.fromRawAddressBytes(rawBytes)
+                ZcashUnifiedAddress.decode(Constants.PARAMS, addr)
             } catch(_: Throwable) {
                 null
             }

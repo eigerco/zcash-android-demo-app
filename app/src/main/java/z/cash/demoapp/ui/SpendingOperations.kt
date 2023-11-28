@@ -3,7 +3,7 @@ package z.cash.demoapp.ui
 import android.content.Context
 import android.util.Base64
 import android.util.Log
-import cash.z.wallet.sdk.internal.rpc.CompactFormats
+import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,21 +15,19 @@ import uniffi.zcash.ZcashDustOutputPolicy
 import uniffi.zcash.ZcashFixedFeeRule
 import uniffi.zcash.ZcashFixedSingleOutputChangeStrategy
 import uniffi.zcash.ZcashLocalTxProver
-import uniffi.zcash.ZcashMainGreedyInputSelector
+import uniffi.zcash.ZcashMainFixedGreedyInputSelector
 import uniffi.zcash.ZcashMemoBytes
 import uniffi.zcash.ZcashOvkPolicy
 import uniffi.zcash.ZcashPayment
 import uniffi.zcash.ZcashRecipientAddress
-import uniffi.zcash.ZcashTestGreedyInputSelector
+import uniffi.zcash.ZcashTestFixedGreedyInputSelector
 import uniffi.zcash.ZcashTransactionRequest
 import uniffi.zcash.ZcashTxId
 import uniffi.zcash.ZcashUnifiedSpendingKey
 import uniffi.zcash.ZcashWalletDb
-import uniffi.zcash.spendMain
-import uniffi.zcash.spendTest
-import z.cash.demoapp.db.FirstClassByteArray
-import z.cash.demoapp.db.WalletDb
-import z.cash.demoapp.db.toHex
+import uniffi.zcash.spendMainFixed
+import uniffi.zcash.spendTestFixed
+import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.utils.Constants
 import z.cash.demoapp.utils.LightWalletClient
 import java.io.File
@@ -42,18 +40,20 @@ object SpendingOperations {
         val str = sharedPref.getString(Constants.LAST_TX_ID_LABEL, null)
         val txIdByteArray = Base64.decode(str, Base64.NO_WRAP)
 
-        val byteArray = FirstClassByteArray(txIdByteArray)
-
         val parsedTxId = ZcashTxId.fromBytes(txIdByteArray.toUByteArray().toList())
-        Log.i("submitTransaction", "Submitted Transaction with Hash ${parsedTxId.toHexString()}")
 
         CoroutineScope(Dispatchers.IO).launch {
-            val encodedTransaction = WalletDb(context).findEncodedTransactionByTxId(byteArray)
-            LightWalletClient.submitTransaction(encodedTransaction!!.raw.byteArray)
+            val dbPath = context.getDatabasePath(WalletDb.DATABASE_NAME).absolutePath
+            val walletDb = ZcashWalletDb.forPath(dbPath, Constants.PARAMS)
+            val tx = walletDb.getTransaction(parsedTxId)
+
+            LightWalletClient.submitTransaction(tx.toBytes().map{ it.toByte() }.toByteArray())
+        }.invokeOnCompletion {
+            Toast.makeText(context, "Transaction submitted!", Toast.LENGTH_LONG).show()
+            Log.i("submitTransaction", "Submitted Transaction with Hash ${parsedTxId.toHexString()}")
         }
     }
 
-    // A transaction request
     fun makeTransactionRequest(
         memoBytes: List<UByte>,
         addressTo: String,
@@ -113,19 +113,20 @@ object SpendingOperations {
             val txId =
                 when(Constants.PARAMS) {
                     ZcashConsensusParameters.TEST_NETWORK -> {
-                        val inputSelector = ZcashTestGreedyInputSelector(fixedChangeStrategy, zdop)
-                        spendTest(walletDb, Constants.PARAMS, prover, inputSelector, zusk, request, ZcashOvkPolicy.Sender, Constants.MIN_CONFIRMATIONS)
+                        val inputSelector = ZcashTestFixedGreedyInputSelector(fixedChangeStrategy, zdop)
+                        spendTestFixed(walletDb, Constants.PARAMS, prover, inputSelector, zusk, request, ZcashOvkPolicy.Sender, Constants.MIN_CONFIRMATIONS)
 
                     }
                     ZcashConsensusParameters.MAIN_NETWORK -> {
-                        val inputSelector = ZcashMainGreedyInputSelector(fixedChangeStrategy, zdop)
-                        spendMain(walletDb, Constants.PARAMS, prover, inputSelector, zusk, request, ZcashOvkPolicy.Sender, Constants.MIN_CONFIRMATIONS)
+                        val inputSelector = ZcashMainFixedGreedyInputSelector(fixedChangeStrategy, zdop)
+                        spendMainFixed(walletDb, Constants.PARAMS, prover, inputSelector, zusk, request, ZcashOvkPolicy.Sender, Constants.MIN_CONFIRMATIONS)
                     }
                 }
 
-            Log.i("createTransaction hash", "hash of created transaction: 0x${txId.toHexString()}")
-
+            Log.i("createTransaction hash", "hash of created transaction: ${txId.toHexString()}")
             saveTransactionId(context, txId)
+        }.invokeOnCompletion {
+            Toast.makeText(context, "Transaction created!", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -143,14 +144,4 @@ object SpendingOperations {
         }
     }
 
-    // auxiliary functions for debugging
-    private fun logTxHash(tx: CompactFormats.CompactTx) {
-        Log.i("fetchTransactionsForBlock", "TX HASH: " + tx.toHex() )
-    }
-}
-
-fun CompactFormats.CompactTx.toHex() {
-    val txHash = this.hash.toByteArray()
-    txHash.reverse()
-    txHash.toHex()
 }

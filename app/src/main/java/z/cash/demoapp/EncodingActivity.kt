@@ -15,10 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import uniffi.zcash.ZcashAccountId
 import uniffi.zcash.ZcashUnifiedAddress
 import uniffi.zcash.ZcashWalletDb
-import z.cash.demoapp.db.WalletDb
+import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
 import z.cash.demoapp.utils.Constants
 import java.util.Locale
@@ -76,10 +75,10 @@ class EncodingActivity : ComponentActivity() {
                             label = "Sapling address",
                             text = sAddress
                         )
-                        LabelTextRow(
-                            label = "Orchard address",
-                            text = oAddress
-                        )
+//                        LabelTextRow(
+//                            label = "Orchard address",
+//                            text = oAddress
+//                        )
                     }
                 }
             }

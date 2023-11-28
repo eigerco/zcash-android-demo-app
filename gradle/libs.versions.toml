@@ -1,6 +1,6 @@
 [versions]
 android-material = "1.10.0"
-androidx-activity = "1.8.0"
+androidx-activity = "1.8.1"
 androidx-annotation = "1.7.0"
 androidx-appcompat = "1.6.1"
 androidx-compose = "1.5.4"
@@ -25,7 +25,7 @@ sqlite-ktx = "2.4.0"
 protoc-gen-grpc-java = "1.59.0"
 protobuf-kotlin = "3.25.0"
 x-junit = "1.1.5"
-zcash-library = "0.6.0"
+zcash-library = "0.7.0"
 
 # plugins
 org-jetbrains-kotlin-android = "1.9.10"

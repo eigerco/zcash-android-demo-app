@@ -46,7 +46,7 @@ object LightWalletClient {
         return client.getBlockRange(rangeRequest)
     }
 
-    suspend fun getLatestBlockHeight(): Service.BlockID {
+    suspend fun getLatestBlock(): Service.BlockID {
         val request = Service.ChainSpec.getDefaultInstance()
 
         return client.getLatestBlock(request)
@@ -89,7 +89,7 @@ object LightWalletClient {
      * Example of use of some other structures,
      * otherwise unused in the application
      */
-    private suspend fun updateSaplingRoots(walletDb: ZcashWalletDb) {
+    suspend fun updateSaplingRoots(walletDb: ZcashWalletDb) {
         val getSubtreeRootsArgBuilder = Service.GetSubtreeRootsArg.newBuilder()
         getSubtreeRootsArgBuilder.startIndex = 0
         getSubtreeRootsArgBuilder.shieldedProtocol = Service.ShieldedProtocol.sapling

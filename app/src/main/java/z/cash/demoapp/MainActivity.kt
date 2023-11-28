@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import uniffi.zcash.ZcashWalletDb
-import z.cash.demoapp.db.WalletDb
+import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.ui.MainOperations
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
 import z.cash.demoapp.utils.Constants
@@ -37,10 +41,10 @@ class MainActivity : ComponentActivity() {
         val walletDb = ZcashWalletDb.forPath(dbPath, Constants.PARAMS)
         val blocksDirRoot = getDatabasePath(WalletDb.DATABASE_NAME).parent!!
 
-        var displaySummaryText: String = ""
+        var initialSummaryText: String = ""
 
         try {
-            displaySummaryText =
+            initialSummaryText =
                 if(walletDb.getWalletSummary(Constants.MIN_CONFIRMATIONS) != null) {
                     MainOperations.getWalletSummary(walletDb)
                 } else {
@@ -58,6 +62,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        var displaySummaryText by remember { mutableStateOf(initialSummaryText) }
                         TextCard("Wallet summary", displaySummaryText)
                         StandardButton("Reset database") {
                             MainOperations.resetWalletDb(applicationContext, walletDb)
@@ -66,6 +71,10 @@ class MainActivity : ComponentActivity() {
                         StandardButton("Download blocks") {
                             Sync.downloadBlocks(dbPath, blocksDirRoot)
                             Toast.makeText(this@MainActivity, "Blocks downloaded!", Toast.LENGTH_LONG).show()
+                        }
+                        StandardButton("Update from db") {
+                            displaySummaryText = MainOperations.getWalletSummary(walletDb)
+                            Toast.makeText(this@MainActivity, "Updated!", Toast.LENGTH_LONG).show()
                         }
                         StandardButton("Go to menu") {
                             startActivity(Intent(this@MainActivity, MenuActivity::class.java))

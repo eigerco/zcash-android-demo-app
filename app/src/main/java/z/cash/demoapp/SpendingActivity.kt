@@ -16,7 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import uniffi.zcash.ZcashWalletDb
-import z.cash.demoapp.db.WalletDb
+import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.ui.Components
 import z.cash.demoapp.ui.Components.StandardButton
 import z.cash.demoapp.ui.SpendingOperations

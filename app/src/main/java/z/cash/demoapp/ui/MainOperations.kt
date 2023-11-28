@@ -13,7 +13,7 @@ import uniffi.zcash.ZcashBlockHeight
 import uniffi.zcash.ZcashFsBlockDb
 import uniffi.zcash.ZcashTreeState
 import uniffi.zcash.ZcashWalletDb
-import z.cash.demoapp.db.WalletDb
+import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.utils.Constants
 import z.cash.demoapp.utils.LightWalletClient
 
@@ -26,7 +26,7 @@ object MainOperations {
         // Forces database creation
         WalletDb(appCtx).writableDatabase!!
 
-        conn.init(Constants.SEED)
+        conn.initialize(Constants.SEED)
 
         CoroutineScope(Dispatchers.IO).launch {
             val birthday = getUpdatedAccountBirthday()
@@ -43,7 +43,7 @@ object MainOperations {
     // and no need of helper
     fun initBlocksDb(appCtx: Context, blocksDir: String) {
         // This gets the `databases` directory
-        ZcashFsBlockDb.forPath(blocksDir).init(blocksDir)
+        ZcashFsBlockDb.forPath(blocksDir).initialize(blocksDir)
 
         Toast.makeText(appCtx, "Successfully reset the blocks db!", Toast.LENGTH_LONG).show()
     }
@@ -64,13 +64,16 @@ object MainOperations {
         return ZcashAccountBirthday.fromTreestate(birthState, birthHeight)
     }
 
+    /**
+     * There are obviously much better ways to handle a UI,
+     * this is just the simplest form of showing information
+     */
     fun getWalletSummary(walletDb: ZcashWalletDb): String {
         val walletSummary = walletDb.getWalletSummary(Constants.MIN_CONFIRMATIONS)!!
         val unifiedAddress = walletDb.getCurrentAddress(Constants.ACCOUNT_ID)
         val transparentAddress = unifiedAddress?.transparent()!!.encode(Constants.PARAMS)
         val saplingAddress = unifiedAddress.sapling()!!.encode(Constants.PARAMS)
 
-        val ws = StringBuilder()
 
         val chainTipHeight = walletSummary.chainTipHeight().value()
         val fullyScannedHeight = walletSummary.fullyScannedHeight().value()
@@ -79,6 +82,8 @@ object MainOperations {
         val anchorHeight = walletDb.getTargetAndAnchorHeights(Constants.MIN_CONFIRMATIONS)!!.anchorHeight
         val walletBirthdayHeight = walletDb.getWalletBirthday()?.value() ?: 0
         val spendableNotes = walletDb.selectSpendableSaplingNotes(Constants.ACCOUNT_ID, amountDefiningSpendable, anchorHeight, listOf())
+
+        val ws = StringBuilder()
 
         ws.appendLine("Transparent address: $transparentAddress")
         Log.i("getWalletSummary", "Transparent address: $transparentAddress")

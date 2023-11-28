@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -18,13 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import uniffi.zcash.ZcashWalletDb
-import z.cash.demoapp.db.WalletDb
-import z.cash.demoapp.ui.Components
+import z.cash.demoapp.utils.WalletDb
+import z.cash.demoapp.ui.Components.StandardButton
 import z.cash.demoapp.ui.Components.TextCard
 import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
-import z.cash.demoapp.ui.TxDetailsOperations.getFormattedTextForTxDetails
+import z.cash.demoapp.ui.TxDetailsOperations
 import z.cash.demoapp.utils.Constants
 
 class TxDetailsActivity : ComponentActivity() {
@@ -57,7 +55,7 @@ class TxDetailsActivity : ComponentActivity() {
                             txHash = it
                             try {
                                 if (txHash.length == 64) {
-                                    text = getFormattedTextForTxDetails(walletDb, txHash)
+                                    text = TxDetailsOperations.getFormattedTextForTxDetails(walletDb, txHash)
                                 }
                             } catch (e: Throwable) {
                                 e.message?.let { it1 -> Log.e("fatal", it1) }
@@ -66,7 +64,7 @@ class TxDetailsActivity : ComponentActivity() {
                         },
                         label = { Text("Transaction hash") }
                     )
-                    Components.StandardButton("Paste test transaction") {
+                    StandardButton("Paste test transaction") {
                       txHash = "8b36745d1b29bfcb3836e13dbdc1b749a6b1f9485b83d929e561a2a89004fd55"
                     }
                     TextCard("Transaction details", text)

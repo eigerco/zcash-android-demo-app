@@ -78,11 +78,13 @@ class BlocksRepo(
     }
 
     companion object {
-
+        /**
+         * Blocks repo are handled on this side for the blocks root, since we need access
+         * to the folders and file system for better management of the blocks... (TODO)
+         */
         fun new(blockCacheRoot: File): BlocksRepo {
             // create and check cache directories
             val blocksDirectory = File(blockCacheRoot, BLOCKS_DOWNLOAD_DIRECTORY).also {
-                Log.e("FATAL", "new(blockCacheRoot: File): " + it.path.toString())
                 it.mkdirs()
             }
             if (!blocksDirectory.exists()) {

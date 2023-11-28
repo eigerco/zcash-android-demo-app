@@ -35,7 +35,7 @@ object Sync {
         val fsBlockDb = ZcashFsBlockDb.forPath(blocksDirRoot)
 
         val latestHeight = runBlocking {
-            val latestBlockHeight = client.getLatestBlockHeight()
+            val latestBlockHeight = client.getLatestBlock()
             return@runBlocking latestBlockHeight.height
         }
 
@@ -44,7 +44,7 @@ object Sync {
         val repo = BlocksRepo.new(File(blocksDirRoot))
 
         CoroutineScope(Dispatchers.IO).launch {
-//            updateSaplingRoots(walletDb)
+            client.updateSaplingRoots(walletDb)
 
             val fetchingRange = rangeStart .. latestHeight
 
@@ -58,6 +58,8 @@ object Sync {
                 }
             }
 
+            // This should be aside, because it's not synchronizing with the blocks,
+            // but it fetches ALL UTXos.
             fetchUtxosForAddress(walletDb)
 
         }.invokeOnCompletion {
@@ -122,7 +124,7 @@ object Sync {
         val height = ZcashBlockHeight(heightIn)
         val txOut =  ZcashTxOut(ZcashAmount(value), addressIn.script())
 
-        val output = ZcashWalletTransparentOutput.fromParts(outPoint , txOut, height)
+        val output = ZcashWalletTransparentOutput.fromParts(outPoint, txOut, height)
 
         return walletDb.putReceivedTransparentUtxo(output)
     }
