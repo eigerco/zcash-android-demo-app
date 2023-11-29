@@ -72,6 +72,7 @@ class SpendingActivity : ComponentActivity() {
 
     /**
      * Trying to reduce the amount of exceptions that may occur in the UI
+     * Keeping these functions here as the toast text is better visible.
      */
     private fun getSpendableAmountOrToast(walletDb: ZcashWalletDb): Long {
         return try {

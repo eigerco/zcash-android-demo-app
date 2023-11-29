@@ -13,6 +13,10 @@ import uniffi.zcash.ZcashFsBlockDb
 import java.io.File
 import java.util.Locale
 
+/**
+ * This class is, as a whole, dedicated to writing blocks
+ * to the folder repository and `fsBlocksDb` database.
+ */
 class BlocksRepo(
     private val blocksDirectory: File
 ) {
@@ -65,6 +69,10 @@ class BlocksRepo(
         metaDataBuffer.clear()
     }
 
+    /**
+     * Although Orchard support is still not there,
+     * this counts both actions and outputs for  retrocompatibility issues
+     */
     private fun getOutputsCounts(vtxList: List<CompactTx>): Pair<UInt, UInt> {
         var outputsCount: UInt = 0u
         var actionsCount: UInt = 0u
@@ -80,7 +88,7 @@ class BlocksRepo(
     companion object {
         /**
          * Blocks repo are handled on this side for the blocks root, since we need access
-         * to the folders and file system for better management of the blocks... (TODO)
+         * to the folders and file system for better management of the blocks.
          */
         fun new(blockCacheRoot: File): BlocksRepo {
             // create and check cache directories
@@ -162,9 +170,6 @@ suspend fun File.createNewFileSuspend() = withContext(Dispatchers.IO) { createNe
 suspend fun File.deleteSuspend() = withContext(Dispatchers.IO) { delete() }
 
 suspend fun File.existsSuspend() = withContext(Dispatchers.IO) { exists() }
-
-suspend fun File.mkdirsSuspend() = withContext(Dispatchers.IO) { mkdirs() }
-
 suspend fun File.renameToSuspend(dest: File) = withContext(Dispatchers.IO) { renameTo(dest) }
 
 suspend fun File.writeBytesSuspend(byteArray: ByteArray) = withContext(Dispatchers.IO) { writeBytes(byteArray) }

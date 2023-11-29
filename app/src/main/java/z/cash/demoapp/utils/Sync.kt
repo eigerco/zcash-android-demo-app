@@ -44,6 +44,9 @@ object Sync {
         val repo = BlocksRepo.new(File(blocksDirRoot))
 
         CoroutineScope(Dispatchers.IO).launch {
+            // this is needed at least once, it isn't needed for each blocks range.
+            // Here it's included because while testing, the developer supposedly
+            // needs this per each test.
             client.updateSaplingRoots(walletDb)
 
             val fetchingRange = rangeStart .. latestHeight
@@ -59,11 +62,12 @@ object Sync {
             }
 
             // This should be aside, because it's not synchronizing with the blocks,
-            // but it fetches ALL UTXos.
-            fetchUtxosForAddress(walletDb)
+            // but it fetches ALL UTXOs.
+            //fetchUtxosForAddress(walletDb)
 
         }.invokeOnCompletion {
-            scanCachedBlocks(Constants.PARAMS,
+            scanCachedBlocks(
+                Constants.PARAMS,
                 blocksDirRoot,
                 walletDbPath,
                 ZcashBlockHeight(rangeStart.toUInt()),
@@ -74,14 +78,16 @@ object Sync {
 
     private suspend fun fetchTransactionsForBlock(walletDb: ZcashWalletDb, tx: CompactTx) {
         val response = client.getTransaction(tx.hash)
-//        val txHash = tx.hash.toByteArray()
-//        txHash.reverse()
-//        Log.i("ZSYNC", "TX HASH: " + txHash.toHex() )
         val txData = response.data.map{ it.toUByte() }
         val ztx = ZcashTransaction.fromBytes(txData, ZcashBranchId.SAPLING)
         decryptAndStoreTransaction(Constants.PARAMS, walletDb, ztx)
     }
 
+    /**
+     * This is needed in case transparent addresses are used in testing.
+     * Since here the default is shielded transactions, we keep this commented out
+     * on the sync procedure above.
+     */
     private suspend fun fetchUtxosForAddress(walletDb: ZcashWalletDb) {
         val ua = walletDb.getCurrentAddress(Constants.ACCOUNT_ID)
 
@@ -96,7 +102,6 @@ object Sync {
 
         responseFlow.collect {
             val txIdBytes = it.txid.map { x -> x.toUByte() }.toList()
-//            val scriptBytes = it.script.map { x -> x.toUByte() }.toList()
             val index = it.index.toUInt()
             val height = it.height.toUInt()
 

@@ -1,8 +1,11 @@
 package z.cash.demoapp.ui
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,8 +35,9 @@ object MainOperations {
             val birthday = getUpdatedAccountBirthday()
 
             conn.createAccount(Constants.SEED, birthday)
-
-            withContext(Dispatchers.Main) {
+        }
+        .invokeOnCompletion {
+            Handler(Looper.getMainLooper()).post{
                 Toast.makeText(appCtx, "Successfully reset the wallet db!", Toast.LENGTH_LONG).show()
             }
         }
@@ -56,7 +60,7 @@ object MainOperations {
     private suspend fun getUpdatedAccountBirthday(): ZcashAccountBirthday {
         // Retrieves the (Sapling) TreeState from the birth of the wallet
         val response = LightWalletClient.getTreeState(Constants.WALLET_BIRTHDAY_HEIGHT)
-        val treeState =  response.toByteArray().map { it.toUByte() }.toList()
+        val treeState =  response.toByteArray().map { it.toUByte() }
 
         // Atomizes all information for the wallet to be used locally (for spending, for example)
         val birthHeight = ZcashBlockHeight(Constants.WALLET_BIRTHDAY_HEIGHT.toUInt())
@@ -93,10 +97,12 @@ object MainOperations {
         ws.appendLine("Synced: ${walletSummary.isSynced()}")
         ws.appendLine("Fully synced height: $fullyScannedHeight")
         ws.appendLine("Wallet birthday height: $walletBirthdayHeight")
+
         ws.appendLine("Account balances:")
         walletSummary.accountBalances().forEach {
             ws.appendLine("Account ID:${it.key}: ${it.value.total().value()}")
         }
+
         ws.appendLine("Spendable notes:")
         spendableNotes.forEach {
             ws.appendLine(" - Note value in ZATs: ${it.value().value()}")

@@ -31,7 +31,7 @@ object TransparentBalanceOperations {
 
     /**
      * This is an exemplary function to show how to decide whose type
-     * is the address being given as a string. There was not a good way
+     * is the address being given in the `addr` string. There was not a good way
      * to solve the issue with the boundaries that UniFFI impose,
      * so we had to work around this. Maybe a good issue for a PR!
      */

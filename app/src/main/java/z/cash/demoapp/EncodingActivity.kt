@@ -75,10 +75,10 @@ class EncodingActivity : ComponentActivity() {
                             label = "Sapling address",
                             text = sAddress
                         )
-//                        LabelTextRow(
-//                            label = "Orchard address",
-//                            text = oAddress
-//                        )
+                        LabelTextRow(
+                            label = "Orchard address",
+                            text = oAddress
+                        )
                     }
                 }
             }
@@ -103,6 +103,7 @@ class EncodingActivity : ComponentActivity() {
 
 }
 
+// ad-hoc extension to make a byte list/array into a more "human" hex.
 fun List<UByte>.toHex(): String {
     val sb = StringBuilder(size * 2)
     for (b in this) {

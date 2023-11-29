@@ -8,13 +8,11 @@ object Constants {
     /**
      * Here is the seed used primarily to create a wallet
      */
-    val SEED: List<UByte> = listOf(70,85,17,24,57,110,39,48,123,19,180,141,93,49,140,98,
-        144,43,13,213,37,118,54,238,112,74,177,221,133,28,45,55,140,5,130,134,247,180,
-        72,223).map { it.toUByte() }
+    val SEED: List<UByte> = listOf(0,1,2,3).map { it.toUByte() }
 
     // this should be set as a height antecedent to any operation done
     // with the wallet being restored with the seed above.
-    const val WALLET_BIRTHDAY_HEIGHT: Long = 2610659L
+    const val WALLET_BIRTHDAY_HEIGHT: Long = 2610704L
 
     // This is a global parameter because here we assume that the app uses either the test or main net.
     val PARAMS = ZcashConsensusParameters.TEST_NETWORK

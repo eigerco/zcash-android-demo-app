@@ -67,7 +67,6 @@ object LightWalletClient {
     }
 
     suspend fun getTransaction(txHashOrId: ByteString): Service.RawTransaction {
-        Log.i("getTransactionAndHeightFromHash", "getTransaction: ${txHashOrId.toStringUtf8()}")
         val request = Service.TxFilter.newBuilder().setHash(txHashOrId).build()
 
         return client.getTransaction(request)
@@ -86,8 +85,8 @@ object LightWalletClient {
     }
 
     /**
-     * Example of use of some other structures,
-     * otherwise unused in the application
+     * There are several parameters to play around with in the builder.
+     * Also, for performance reasons, the startIndex below could be calibrated better.
      */
     suspend fun updateSaplingRoots(walletDb: ZcashWalletDb) {
         val getSubtreeRootsArgBuilder = Service.GetSubtreeRootsArg.newBuilder()

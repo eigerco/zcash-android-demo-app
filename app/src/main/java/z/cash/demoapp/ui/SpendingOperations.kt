@@ -1,13 +1,14 @@
 package z.cash.demoapp.ui
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import uniffi.zcash.ZcashAccountId
 import uniffi.zcash.ZcashAmount
 import uniffi.zcash.ZcashConsensusParameters
 import uniffi.zcash.ZcashDustAction
@@ -48,9 +49,12 @@ object SpendingOperations {
             val tx = walletDb.getTransaction(parsedTxId)
 
             LightWalletClient.submitTransaction(tx.toBytes().map{ it.toByte() }.toByteArray())
-        }.invokeOnCompletion {
-            Toast.makeText(context, "Transaction submitted!", Toast.LENGTH_LONG).show()
+
             Log.i("submitTransaction", "Submitted Transaction with Hash ${parsedTxId.toHexString()}")
+        }.invokeOnCompletion {
+            Handler(Looper.getMainLooper()).post{
+                Toast.makeText(context, "Transaction submitted!", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -89,7 +93,8 @@ object SpendingOperations {
 
     fun spendableAmount(walletDb: ZcashWalletDb): Long {
         val anchorHeight = walletDb.getTargetAndAnchorHeights(Constants.MIN_CONFIRMATIONS)!!.anchorHeight
-        return walletDb.selectSpendableSaplingNotes(ZcashAccountId(0u), ZcashAmount(10_000), anchorHeight, listOf()).sumOf { it.value().value() }
+        val minAmount = ZcashAmount(10_000)
+        return walletDb.selectSpendableSaplingNotes(Constants.ACCOUNT_ID, minAmount, anchorHeight, listOf()).sumOf { it.value().value() }
     }
 
     fun createTransaction(
@@ -124,9 +129,12 @@ object SpendingOperations {
                 }
 
             Log.i("createTransaction hash", "hash of created transaction: ${txId.toHexString()}")
+
             saveTransactionId(context, txId)
         }.invokeOnCompletion {
-            Toast.makeText(context, "Transaction created!", Toast.LENGTH_LONG).show()
+            Handler(Looper.getMainLooper()).post{
+                Toast.makeText(context, "Transaction created!", Toast.LENGTH_LONG).show()
+            }
         }
     }
 

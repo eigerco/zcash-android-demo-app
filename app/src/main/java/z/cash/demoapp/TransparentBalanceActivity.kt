@@ -51,6 +51,7 @@ class TransparentBalanceActivity : ComponentActivity() {
                         var address by remember { mutableStateOf("") }
                         var balance by remember { mutableLongStateOf(0) }
                         var isValid by remember { mutableStateOf(false) }
+
                         OutlinedTextField(
                             value = address,
                             onValueChange = {

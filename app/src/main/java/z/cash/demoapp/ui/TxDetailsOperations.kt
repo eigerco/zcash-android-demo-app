@@ -7,23 +7,12 @@ import uniffi.zcash.ZcashBranchId
 import uniffi.zcash.ZcashTransaction
 import uniffi.zcash.ZcashWalletDb
 import uniffi.zcash.decryptTransaction
-import z.cash.demoapp.toHex
 import z.cash.demoapp.utils.Constants
 import z.cash.demoapp.utils.LightWalletClient
-import java.util.Locale
 
 object TxDetailsOperations {
-    /**
-     * To extract information from a shielded transaction we need the viewing keys in the database,
-     * otherwise we would need only the txHash information.
-     */
-    fun getFormattedTextForTxDetails(walletDb: ZcashWalletDb, txHash: String): String {
-        // There are much better ways to handle coroutines jobs,
-        // but in this case we just need the transaction to be processed further.
-        val (ztx, zht) = runBlocking {
-            return@runBlocking getTransactionAndHeightFromHash(txHash)
-        }
 
+    fun getFormattedTextForTxDetails(walletDb: ZcashWalletDb, ztx: ZcashTransaction, zht: ZcashBlockHeight): String {
         // There are several pieces of information to be gathered
         // for a transaction, mostly for shielded transactions on Sapling and Orchard
         val sb = StringBuilder()
@@ -67,13 +56,30 @@ object TxDetailsOperations {
                     sb.appendLine(" - index: ${index()} ")
                     sb.appendLine(" - note value: ${note().value().inner()}")
                     sb.appendLine(" - account ID: ${account().id}")
-                    sb.appendLine(" - memo: ${memo().data().toHex()}")
+//                    sb.appendLine(" - memo: ${memo().data().toHex()}")
                     sb.appendLine(" - transfer type: ${transferType()}")
                 }
             }
         }
         return sb.toString()
     }
+
+        /**
+     * To extract information from a shielded transaction we need the viewing keys in the database,
+     * otherwise we would need only the txHash information.
+     */
+    fun getFormattedTextForTxDetails(walletDb: ZcashWalletDb, txHash: String): String {
+        // There are much better ways to handle coroutines jobs,
+        // but in this case we just need the transaction to be processed further.
+        val (ztx, zht) = runBlocking {
+            return@runBlocking getTransactionAndHeightFromHash(txHash)
+        }
+
+        return getFormattedTextForTxDetails(walletDb, ztx, zht)
+    }
+
+
+
 
     private suspend fun getTransactionAndHeightFromHash(txHash: String): Pair<ZcashTransaction, ZcashBlockHeight> {
         val bytesFromHex = txHash.fromHex()

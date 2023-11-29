@@ -1,6 +1,8 @@
 package z.cash.demoapp
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import uniffi.zcash.ZcashTxId
 import uniffi.zcash.ZcashWalletDb
 import z.cash.demoapp.utils.WalletDb
 import z.cash.demoapp.ui.Components.StandardButton
@@ -25,6 +28,7 @@ import z.cash.demoapp.ui.theme.ZcashDemoAppTheme
 import z.cash.demoapp.ui.TxDetailsOperations
 import z.cash.demoapp.utils.Constants
 
+@OptIn(ExperimentalUnsignedTypes::class)
 class TxDetailsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +69,15 @@ class TxDetailsActivity : ComponentActivity() {
                         label = { Text("Transaction hash") }
                     )
                     StandardButton("Paste test transaction") {
-                      txHash = "8b36745d1b29bfcb3836e13dbdc1b749a6b1f9485b83d929e561a2a89004fd55"
+                      txHash = "74e2c1e54bfa96b0485552d32dc6ac6871568be72a218aa8a6e07c62123fc27e"
+                    }
+                    StandardButton("Get last transaction") {
+                        val sharedPref = applicationContext.getSharedPreferences(Constants.CACHE_LABEL, Context.MODE_PRIVATE)
+                        val str = sharedPref.getString(Constants.LAST_TX_ID_LABEL, null)
+                        val txIdByteArray = Base64.decode(str, Base64.NO_WRAP)
+                        val parsedTxId = ZcashTxId.fromBytes(txIdByteArray.toUByteArray().toList())
+                        val tx = walletDb.getTransaction(parsedTxId)
+                        text = TxDetailsOperations.getFormattedTextForTxDetails(walletDb, tx, tx.expiryHeight())
                     }
                     TextCard("Transaction details", text)
                 }

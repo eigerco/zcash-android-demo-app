@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper
  *  There is another database for blocks only, but that is handled by librustzcash directly,
  *  and does not need a helper on the Android side.
  */
-class WalletDb(val context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class WalletDb(private val context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     fun destroy() {
         close()

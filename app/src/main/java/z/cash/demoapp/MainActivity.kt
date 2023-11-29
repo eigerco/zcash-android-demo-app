@@ -32,28 +32,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // reinitialize the wallet
+        // get wallet db path
         val dbPath = getDatabasePath(WalletDb.DATABASE_NAME).absolutePath
 
         // The Databases are created here, because to create the connection
         // we need the path of the files, and to get those we need the context to be visible.
-        // The context in Android is available only under Activities.
         val walletDb = ZcashWalletDb.forPath(dbPath, Constants.PARAMS)
         val blocksDirRoot = getDatabasePath(WalletDb.DATABASE_NAME).parent!!
-
-        var initialSummaryText: String = ""
-
-        try {
-            initialSummaryText =
-                if(walletDb.getWalletSummary(Constants.MIN_CONFIRMATIONS) != null) {
-                    MainOperations.getWalletSummary(walletDb)
-                } else {
-                    "Wallet not available. A seed is needed to generate the initial wallet information.\n " +
-                            "It may be set in \"Constants\""
-                }
-        } catch(_: Throwable) {
-            Toast.makeText(this@MainActivity, "Database not initialized", Toast.LENGTH_LONG).show()
-        }
 
         setContent {
             ZcashDemoAppTheme {
@@ -62,7 +47,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        var displaySummaryText by remember { mutableStateOf(initialSummaryText) }
+                        var displaySummaryText by remember { mutableStateOf(makeInitialSummaryText(walletDb)) }
                         TextCard("Wallet summary", displaySummaryText)
                         StandardButton("Reset database") {
                             MainOperations.resetWalletDb(applicationContext, walletDb)
@@ -82,6 +67,19 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    fun makeInitialSummaryText(walletDb: ZcashWalletDb): String {
+        return try {
+                if(walletDb.getWalletSummary(Constants.MIN_CONFIRMATIONS) != null) {
+                    MainOperations.getWalletSummary(walletDb)
+                } else {
+                    "Wallet not available. A seed is needed to generate the initial wallet information.\n " +
+                            "It may be set in \"Constants\""
+                }
+        } catch(_: Throwable) {
+            ""
         }
     }
 }
