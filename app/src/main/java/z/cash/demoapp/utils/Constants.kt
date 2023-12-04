@@ -28,12 +28,17 @@ object Constants {
     // assuming there is always only one account in the database
     val ACCOUNT_ID = ZcashAccountId(0u)
 
+    // coordinates to get the last transaction in shared preferences
+    // the important thing is that it's the same for all instances in which it's used
     const val LAST_TX_ID_LABEL = "last-tx-id"
     const val CACHE_LABEL = "transactions"
 
-    const val MAX_BLOCKS_TO_SCAN = 60L
+    // max amount of retrograde blocks we get from the last block
+    const val MAX_BLOCKS_TO_SCAN = 20L
 
+    // max utxos to download for one transparent address
     const val MAX_UTXOS = 10
 
+    // some recipient address generated earlier which was used for testing
     const val RECIPIENT_ADDRESS = "ztestsapling1yfp9e7m2xze0zkhhj7y6k26gepwa6z3a27kq3ngxpl455vp26dv7jc9cv2wa3phngyz967qj88h"
 }
