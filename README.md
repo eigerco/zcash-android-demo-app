@@ -5,7 +5,7 @@
 This is an app built for demonstration of the features of a [UniFFI library](https://github.com/eigerco/uniffi-zcash-lib) translating the librustzcash library built by the ECC. Information about details of the libraries, e.g. how to build the releases or where to get ready ones, may be found there. This was financed by a grant from the Zcash Foundation. More details about the process and the application may be found [here](https://zcashgrants.org/gallery/25215916-53ea-4041-a3b2-6d00c487917d/43799479/) and [here](https://forum.zcashcommunity.com/t/zcash-uniffi-library-addenda-resubmission/44904).
 
 
-### Some ground rules/suggestions/recommendations:
+### Disclaimers
 
 - it was not created to be used as a wallet. It doesn't contain a lot of basic instruments like error handling and like features
 - it is meant to be ran by developers
@@ -13,7 +13,7 @@ This is an app built for demonstration of the features of a [UniFFI library](htt
 - the code is very simplistic and doesn't reflect the complexity of the UX of a modern Android app, 
 - but we still tried to use the most modern version of the UI (Android Compose) and idiomatic Kotlin code.
 
-### This said, for a successful usage
+### For a successful usage
 
 - It's best to have Android Studio installed.
 - The first time the app will be loaded into the editor, it will take some 10-20 minutes to download and cache relevant dependencies.
