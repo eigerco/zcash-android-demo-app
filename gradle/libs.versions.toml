@@ -25,7 +25,7 @@ sqlite-ktx = "2.4.0"
 protoc-gen-grpc-java = "1.59.0"
 protobuf-kotlin = "3.25.0"
 x-junit = "1.1.5"
-zcash-library = "0.7.0"
+zcash-library = "1.0.0"
 
 # plugins
 org-jetbrains-kotlin-android = "1.9.10"
