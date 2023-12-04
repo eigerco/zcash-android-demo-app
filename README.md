@@ -2,7 +2,8 @@
 
 ## Introduction
 
-This is an app built for demonstration of the features of a UniFFI library translating the librustzcash library built by the ECC.
+This is an app built for demonstration of the features of a [UniFFI library](https://github.com/eigerco/uniffi-zcash-lib) translating the librustzcash library built by the ECC. Information about details of the libraries, e.g. how to build the releases or where to get ready ones, may be found there. This was financed by a grant from the Zcash Foundation. More details about the process and the application may be found [here](https://zcashgrants.org/gallery/25215916-53ea-4041-a3b2-6d00c487917d/43799479/) and [here](https://forum.zcashcommunity.com/t/zcash-uniffi-library-addenda-resubmission/44904).
+
 
 ### Some ground rules/suggestions/recommendations:
 
